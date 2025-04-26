@@ -28,6 +28,8 @@ struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
+        app.init_resource::<Gamepads>();
+
         app.add_input_context::<Player>()
             .add_observer(binding)
             .add_observer(apply_movement)

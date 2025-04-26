@@ -6,3 +6,5 @@ html
 
 # For library
 Cargo.lock
+
+settings.ron
