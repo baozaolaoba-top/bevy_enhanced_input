@@ -13,6 +13,9 @@ use serde::{Deserialize, Serialize};
 ///
 /// If the action's dimension differs from the captured input, it will be converted using
 /// [`ActionValue::convert`](crate::action_value::ActionValue::convert).
+///
+/// 设备输入封装。属于输入的`统一采集`。
+/// 输入的维度可以根据需求变更：摇杆只关心x轴，就从Vec2转换为f32了。
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Reflect, PartialEq)]
 pub enum Input {
     /// Keyboard button, will be captured as
@@ -153,6 +156,8 @@ impl<I: Into<Input>> InputModKeys for I {
 }
 
 /// Keyboard modifiers for both left and right keys.
+///
+/// 键盘功能键。可以按位或，所以可以表示多个功能键的组合。
 #[derive(Default, Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, Reflect)]
 pub struct ModKeys(u8);
 
@@ -232,6 +237,9 @@ impl From<KeyCode> for ModKeys {
 }
 
 /// Associated gamepad.
+///
+/// 键盘鼠标可以查多个，但App是从OS获取的，已经做了综合计算，不管连多少个鼠标，光标都只有一个。
+/// 手柄不一样,每个手柄都是单独的一个设备，还是需要业务逻辑来处理。
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Default, Hash, PartialEq, Eq)]
 pub enum GamepadDevice {
     /// Matches input from any gamepad.
@@ -240,9 +248,13 @@ pub enum GamepadDevice {
     /// For a button, the [`ActionValue`] will be `true` if any gamepad has this button pressed.
     ///
     /// [`ActionValue`]: crate::action_value::ActionValue
+    ///
+    /// 合并处理。
     #[default]
     Any,
     /// Matches input from specific gamepad.
+    ///
+    /// 绑定到单独某个手柄上。
     Single(Entity),
 }
 

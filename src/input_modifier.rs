@@ -23,6 +23,11 @@ use crate::{action_map::ActionMap, action_value::ActionValue};
 /// Can be applied both to inputs and actions.
 /// See [`ActionBinding::with_modifiers`](crate::action_binding::ActionBinding::with_modifiers)
 /// and [`BindingBuilder::with_modifiers`](crate::input_binding::BindingBuilder::with_modifiers).
+///
+/// 修改器，从设备捕获到的值可以在修改器做调整。
+/// 好处是业务拿到的值就是自己想要的值。
+/// 如果没有修改器做前处理，那么业务层要做前处理，强行了解设备数据的转换，耦合性大大增加。
+/// 这里虽然加了一层中间层，但灵活性大大增加。
 pub trait InputModifier: Sync + Send + Debug + 'static {
     /// Returns pre-processed value.
     ///
@@ -38,6 +43,9 @@ pub trait InputModifier: Sync + Send + Debug + 'static {
 /// Conversion into iterator of bindings that could be passed into
 /// [`ActionBinding::with_modifiers`](crate::action_binding::ActionBinding::with_modifiers)
 /// and [`BindingBuilder::with_modifiers`](crate::input_binding::BindingBuilder::with_modifiers).
+///
+/// 修改器支持迭代。可以支持`设备输入`级别，也可以支持`技能`级别。
+/// 下面的代码是单个修改可以转为单元素迭代器。宏支持修改器元祖转多元素迭代器。
 pub trait IntoModifiers {
     /// Returns an iterator over modifiers.
     fn into_modifiers(self) -> impl Iterator<Item = Box<dyn InputModifier>>;

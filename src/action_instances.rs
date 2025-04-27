@@ -23,6 +23,8 @@ use crate::{
 };
 
 /// An extension trait for [`App`] to assign input to components.
+///
+/// 为APP扩展方法。
 pub trait InputContextAppExt {
     /// Registers type `C` as an input context.
     ///
@@ -73,9 +75,12 @@ impl InputContextAppExt for App {
 /// to perform the setup after all registrations in [`App::finish`].
 ///
 /// Exists only during the plugin initialization.
+///
+/// 只在插件初始化存在的资源，用于保存所有上下文。
 #[derive(Resource, Default, Deref, DerefMut)]
 pub(crate) struct ContextRegistry(Vec<ScheduleContexts>);
 
+/// 上下文是按调度组织在一起的。
 pub(crate) struct ScheduleContexts {
     /// Schedule ID for which all actions were registered.
     schedule_id: TypeId,
@@ -102,6 +107,8 @@ impl ScheduleContexts {
     }
 
     /// Calls [`Self::setup_typed`] for `S` that was associated in [`Self::new`].
+    ///
+    /// new-setup-setup_typed, 泛型方法当普通函数调用，这个库里多次使用了这种写法。
     pub(crate) fn setup(&self, app: &mut App) {
         (self.setup)(self, app);
     }
@@ -140,6 +147,7 @@ impl ScheduleContexts {
             .build_state(app.world_mut())
             .build_any_system(rebuild::<S>);
 
+        // 这个插件就注册了rebuild ob和update system.
         app.init_resource::<ActionInstances<S>>()
             .add_observer(rebuild)
             .add_systems(S::default(), update.in_set(EnhancedInputSystem));
@@ -182,6 +190,9 @@ fn update<S: ScheduleLabel>(
     instances.update(&mut commands, &mut reader, &time, &mut actions);
 }
 
+/// 这个按键映射重新构建是给用户调用的，以下场景需要重建：
+///     手柄热插拔。（至于键盘鼠标就不考虑了，这个是OS做的）
+///     用户在设置界面更改了键盘绑定。（无障碍功能的一部分）
 fn rebuild<S: ScheduleLabel>(
     _trigger: Trigger<RebuildBindings>,
     mut commands: Commands,

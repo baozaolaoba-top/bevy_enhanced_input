@@ -236,6 +236,8 @@ impl InputReader<'_, '_> {
 ///     action_sources.mouse_wheel = !mouse_used;
 /// }
 /// ```
+///
+/// 这是资源，一个总开关，定义了哪些输入是可接受的。
 #[derive(Resource, Reflect)]
 pub struct ActionSources {
     pub keyboard: bool,
@@ -272,6 +274,8 @@ struct ConsumedInput {
 }
 
 impl ConsumedInput {
+    /// 每帧（PreUpdate/PreFixedUpdate)都会先清空，再计算有那些输入需要消费。
+    /// 比较底层，贴近设备的操作。
     fn reset(&mut self) {
         self.keys.clear();
         self.mod_keys = ModKeys::empty();
@@ -284,6 +288,8 @@ impl ConsumedInput {
 }
 
 /// Input and associated device.
+///
+/// 手柄输入，简单包含了手柄是否单独处理，手柄的按键和摇杆。
 #[derive(Hash, PartialEq, Eq)]
 struct GamepadInput<T: Hash + Eq> {
     gamepad: GamepadDevice,

@@ -19,6 +19,8 @@ use crate::{
 ///
 /// Accessible from [`InputCondition::evaluate`](crate::input_condition::InputCondition::evaluate)
 /// and [`InputModifier::apply`](crate::input_modifier::InputModifier::apply)
+///
+/// 存储多个Action， 可以叫ActionDatas.
 #[derive(Default, Deref, DerefMut)]
 pub struct ActionMap(pub HashMap<TypeId, Action>);
 
@@ -43,6 +45,9 @@ impl ActionMap {
 /// This struct could also be created manually to track state for an action
 /// with externally sourced data (e.g., network). Use [`Self::update`] to apply
 /// the data followed by [`Self::trigger_events`].
+///
+/// Action数据，包括state/event/value以及时间和回调。
+/// 最终还是通过ob事件将数据上报出去了。
 #[derive(Clone, Copy)]
 pub struct Action {
     state: ActionState,
@@ -76,6 +81,7 @@ impl Action {
         state: ActionState,
         value: impl Into<ActionValue>,
     ) {
+        // 根据自身的ActionState进行更新时间，再更新ActionState。下一帧帧就更新到当前帧的时间。
         match self.state {
             ActionState::None => {
                 self.elapsed_secs = 0.0;
@@ -100,6 +106,12 @@ impl Action {
     ///
     /// See also [`Self::new`] and [`ActionEvents`].
     pub fn trigger_events(&self, commands: &mut Commands, entity: Entity) {
+        // 这个触发事件的方法可以简写为直接用的，这里加一层是为了给以后做扩展。
+        // eg：未来可能作为pub,由外部指定。
+        //
+        // 还有一个有意思的：当前方法是普通方法，调用的却是泛型方法，
+        // 这个泛型回调是当前类型Action在new时代入泛型的。
+        // 所以才能在普通方法中调用泛型方法。
         (self.trigger_events)(self, commands, entity);
     }
 
@@ -210,6 +222,8 @@ fn trigger_and_log<A, E: Event + Debug>(commands: &mut Commands, entity: Entity,
 /// States are ordered by their significance.
 ///
 /// See also [`ActionEvents`] and [`ActionBinding`]().
+///
+/// Action状态：没开始/(跨帧)进行中/已满足。
 #[derive(Clone, Copy, Default, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum ActionState {
     /// Condition is not triggered.

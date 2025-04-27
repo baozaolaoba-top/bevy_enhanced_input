@@ -385,6 +385,8 @@ impl Plugin for EnhancedInputPlugin {
             .init_resource::<ResetInput>()
             .init_resource::<ActionSources>()
             .configure_sets(PreUpdate, EnhancedInputSystem.after(InputSystem));
+
+        // 所有的system都是在finish中注册的。
     }
 
     fn finish(&self, app: &mut App) {

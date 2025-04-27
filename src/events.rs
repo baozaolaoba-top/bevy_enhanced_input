@@ -27,6 +27,10 @@ bitflags! {
     /// | [`ActionState::Fired`]      | [`ActionState::None`]    | [`Completed`]             |
     ///
     /// The meaning of each kind depends on the assigned [`InputCondition`](crate::input_condition::InputCondition)s.
+    ///
+    /// 从上面的注释可以看出，发什么事件是根据前后ActionState决定的。
+    /// 从Fired到Ongoing是取消技能吗？
+    /// eg：静止蓄力3秒释放强力攻击， 蓄力3秒后移动了， 蓄力少了，是不是从Fired掉到Ongoing了。
     #[derive(Default, Clone, Copy, Debug, PartialEq, Eq)]
     pub struct ActionEvents: u8 {
         /// Corresponds to [`Started`].

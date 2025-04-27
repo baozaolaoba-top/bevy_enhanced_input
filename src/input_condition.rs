@@ -31,6 +31,16 @@ pub const DEFAULT_ACTUATION: f32 = 0.5;
 /// Can be applied both to inputs and actions.
 /// See [`ActionBinding::with_conditions`](crate::action_binding::ActionBinding::with_conditions)
 /// and [`BindingBuilder::with_conditions`](crate::input_binding::BindingBuilder::with_conditions).
+///
+/// 按下A就跳，按下B键3秒蓄力攻击。对于技能Jump来说，只要按下A，业务就能得到Jump技能被释放了;
+/// 对于蓄力攻击，除了按下B,还要3秒这个条件，业务层才知道蓄力攻击这个技能被释放了。
+/// 所以这个3秒就是条件。这样设计的好处是业务层看到的是技能释放了没有，
+/// 细节一点的还会添加一个蓄力效果和蓄力取消的效果。
+/// 但不管怎么说，业务层只关心技能，至于技能是短按还是长按，由前置流程处理。
+///
+/// 业务层只关心技能。看到的只有技能当前的状态： None/Ongoing/Fired，
+/// 从业务层看不到just_pressed的概念，按钮的just_press是一个很底层的概念，
+/// 统一采集封装了底层的细节，在条件这里重新暴露了just_press/release/轻按/长按/长按释放等逻辑。
 pub trait InputCondition: Sync + Send + Debug + 'static {
     /// Returns calculates state.
     ///
@@ -79,6 +89,8 @@ pub enum ConditionKind {
 /// Conversion into iterator of bindings that could be passed into
 /// [`ActionBinding::with_conditions`](crate::action_binding::ActionBinding::with_conditions)
 /// and [`BindingBuilder::with_conditions`](crate::input_binding::BindingBuilder::with_conditions).
+///
+/// 和修改器一样，条件也是支持迭代的。毕竟每次都是`先执行修改器，立马执行条件`。
 pub trait IntoConditions {
     /// Returns an iterator over conditions.
     fn into_conditions(self) -> impl Iterator<Item = Box<dyn InputCondition>>;

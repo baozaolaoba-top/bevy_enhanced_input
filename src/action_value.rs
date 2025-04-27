@@ -6,6 +6,9 @@ use serde::{Deserialize, Serialize};
 /// Value from [`Input`](crate::input::Input) for [`Action`](crate::action_map::Action).
 ///
 /// Can be optionally modified by [`InputModifier`](crate::input_modifier::InputModifier)
+///
+/// 业务逻辑很少需要ActionValue，一般这个作为中间计算类型来存储数据。
+/// 输入输入会转换成ActionValue，修改器修改之后也是这个类型的。
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Debug)]
 pub enum ActionValue {
     Bool(bool),
@@ -39,6 +42,8 @@ impl ActionValue {
     ///
     /// If the new dimension is larger, the additional axes will be set to zero.
     /// If the new dimension is smaller, the extra axes will be discarded.
+    ///
+    /// 这个很有意思，配合下面的as_*系列实现了不同维度的转换。
     pub fn convert(self, dim: ActionValueDim) -> Self {
         match dim {
             ActionValueDim::Bool => self.as_bool().into(),

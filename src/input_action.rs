@@ -30,6 +30,10 @@ use crate::action_value::{ActionValue, ActionValueDim};
 /// ```
 ///
 /// All parameters match corresponding data in the trait.
+///
+/// 可理解为业务逻辑中的技能。和具体的输入已经做了隔离。
+/// 这里的技能是广义技能，不仅仅包含游戏角色的技能，角色移动都可以算是某种技能。
+/// 只要是设备输入能转换的，都可以作为InputAction。
 pub trait InputAction: Debug + Send + Sync + 'static {
     /// What type of value this action will output.
     ///
@@ -40,6 +44,9 @@ pub trait InputAction: Debug + Send + Sync + 'static {
     /// This type will also be used for `value` field on events
     /// e.g. [`Fired::value`](crate::events::Fired::value),
     /// [`Canceled::value`](crate::events::Canceled::value).
+    ///
+    /// 就像注释描述的，Output只接受bool/f32/Vec2/Vec3。
+    /// 为啥？因为这是要给自定义类型做派生的，output就是属性。
     type Output: ActionOutput;
 
     /// Specifies whether this action should swallow any [`Input`](crate::input::Input)s
@@ -50,6 +57,8 @@ pub trait InputAction: Debug + Send + Sync + 'static {
     /// For details, see [`Actions`](crate::actions::Actions).
     ///
     /// Consuming is global and affect actions in all contexts.
+    ///
+    /// 跨帧时，这个比较有用。
     const CONSUME_INPUT: bool = true;
 
     /// Associated accumulation behavior.
@@ -61,10 +70,15 @@ pub trait InputAction: Debug + Send + Sync + 'static {
     /// This way new instances won't react to currently held inputs until they are released.
     /// This prevents unintended behavior where switching or layering contexts using the same key
     /// could cause an immediate switch back, as buttons are rarely pressed for only a single frame.
+    ///
+    /// 一个完整的技能，是否要先归零。
+    /// A键按下了10帧，是每帧都算Pressed还是算1次，用此字段表示。
     const REQUIRE_RESET: bool = false;
 }
 
 /// Marks a type which can be used as [`InputAction::Output`].
+///
+/// 这刚定义了ActionOutput，下面就用bool/f32/Vec2/Vec3实现了。
 pub trait ActionOutput: Send + Sync + Debug + Clone + Copy {
     /// Dimension of this output.
     const DIM: ActionValueDim;
@@ -124,6 +138,8 @@ impl ActionOutput for Vec3 {
 /// Defines how [`ActionValue`] is calculated when multiple inputs are evaluated with the
 /// same most significant [`ActionState`](crate::action_map::ActionState)
 /// (excluding [`ActionState::None`](crate::action_map::ActionState::None)).
+///
+/// 累加器的种类。要么是累加，要么是取最大绝对值。
 #[derive(Default, Clone, Copy, Debug)]
 pub enum Accumulation {
     /// Cumulatively add the key values for each mapping.

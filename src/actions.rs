@@ -21,11 +21,13 @@ use crate::{
 /// Data for each bound action is stored inside [`ActionMap`].
 ///
 /// Actions are evaluated and trigger [`events`](crate::events) only when this component exists on an entity.
+///
+/// Action可以理解为一个输入驱动的动作，技能释放也好，按钮点击也好。
 #[derive(Component)]
 pub struct Actions<C: InputContext> {
     gamepad: GamepadDevice,
-    bindings: Vec<ActionBinding>,
-    action_map: ActionMap,
+    bindings: Vec<ActionBinding>, // 这个存的是从设备取数据，然后加工成ActionValue.
+    action_map: ActionMap,        // 存的是Action数据,和设备无关，更多是业务感兴趣的数据。
     marker: PhantomData<C>,
 }
 
@@ -185,6 +187,9 @@ impl<C: InputContext> Default for Actions<C> {
 /// ```
 ///
 /// All parameters match corresponding data in the trait.
+///
+/// 这个特型很有趣。没有方法，只有关联类型和关联常量。
+/// 派生 #[derive(InputContext)] 之后，如果不指定属性，默认是PreUpdate,0。
 pub trait InputContext: Send + Sync + 'static {
     /// Schedule in which the context will be evaluated.
     ///
@@ -196,6 +201,8 @@ pub trait InputContext: Send + Sync + 'static {
     /// in a single frame and an action triggers, you will get [`Started`](crate::events::Started)
     /// and [`Fired`](crate::events::Fired) on the first run and only [`Fired`](crate::events::Fired)
     /// on the second run.
+    ///
+    /// ctx评估在哪个调度中执行。
     type Schedule: ScheduleLabel + Default;
 
     /// Determines the evaluation order of [`Actions<Self>`].
@@ -203,6 +210,8 @@ pub trait InputContext: Send + Sync + 'static {
     /// Used to control how contexts are layered since some [`InputAction`]s may consume inputs.
     ///
     /// Ordering is global. Contexts with a higher priority are evaluated first.
+    ///
+    /// ctx评估优先级。
     const PRIORITY: usize = 0;
 }
 

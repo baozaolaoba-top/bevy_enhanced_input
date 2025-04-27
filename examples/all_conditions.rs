@@ -45,7 +45,7 @@ fn binding(trigger: Trigger<Binding<Dummy>>, mut actions: Query<&mut Actions<Dum
     actions
         .bind::<HoldAction>()
         .to(HoldAction::KEY)
-        .with_conditions(Hold::new(1.0));
+        .with_conditions(Hold::new(1.0).one_shot(true));
     actions
         .bind::<HoldAndReleaseAction>()
         .to(HoldAndReleaseAction::KEY)
