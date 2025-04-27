@@ -398,6 +398,9 @@ type RebuildFn = fn(
 ///
 /// Can't be triggered by user. If you want to reload bindings, just re-insert
 /// the component or trigger [`RebuildBindings`].
+///
+/// 实体绑定技能事件,插件内部发送此事件.
+/// 全局重新映射事件和局部的实体重新添加技能组组件都会触发此事件.
 #[derive(Event)]
 pub struct Binding<C: InputContext>(PhantomData<C>);
 
@@ -417,5 +420,7 @@ impl<C: InputContext> Binding<C> {
 ///
 /// This will also reset all actions to [`ActionState::None`](crate::ActionState::None)
 /// and trigger the corresponding events.
+///
+/// 重新构建技能映射.无障碍功能的一部分. 重新映射/手柄重连都需要此事件.
 #[derive(Event)]
 pub struct RebuildBindings;

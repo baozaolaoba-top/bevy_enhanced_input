@@ -190,6 +190,8 @@ impl<C: InputContext> Default for Actions<C> {
 ///
 /// 这个特型很有趣。没有方法，只有关联类型和关联常量。
 /// 派生 #[derive(InputContext)] 之后，如果不指定属性，默认是PreUpdate,0。
+///
+/// 上下文.
 pub trait InputContext: Send + Sync + 'static {
     /// Schedule in which the context will be evaluated.
     ///

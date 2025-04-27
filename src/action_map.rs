@@ -48,6 +48,9 @@ impl ActionMap {
 ///
 /// Action数据，包括state/event/value以及时间和回调。
 /// 最终还是通过ob事件将数据上报出去了。
+///
+/// 技能的底层表示,结构体包含了技能关联的各种信息.
+/// Action的 update 和 trigger_events 基本都是前后脚一起处理.
 #[derive(Clone, Copy)]
 pub struct Action {
     state: ActionState,
@@ -75,6 +78,8 @@ impl Action {
     }
 
     /// Updates internal state.
+    ///
+    /// 更新技能的状态和耗时信息,以及最终的ActionValue.
     pub fn update(
         &mut self,
         time: &Time<Virtual>,
@@ -116,6 +121,8 @@ impl Action {
     }
 
     /// A typed version of [`Self::trigger_events`].
+    ///
+    /// 发送事件,每个update都会调用此方法.
     fn trigger_events_typed<A: InputAction>(&self, commands: &mut Commands, entity: Entity) {
         for (_, event) in self.events.iter_names() {
             match event {
@@ -209,6 +216,7 @@ impl Action {
     }
 }
 
+/// 打印 + ob触发.
 fn trigger_and_log<A, E: Event + Debug>(commands: &mut Commands, entity: Entity, event: E) {
     debug!(
         "triggering `{event:?}` for `{}` for `{entity}`",

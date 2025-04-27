@@ -344,15 +344,35 @@ mod trigger_tracker;
 
 pub mod prelude {
     pub use super::{
-        EnhancedInputPlugin, EnhancedInputSystem,
+        EnhancedInputPlugin,
+        EnhancedInputSystem,
         action_binding::ActionBinding,
-        action_instances::{Binding, InputContextAppExt, RebuildBindings},
-        action_map::{Action, ActionState},
+        action_instances::{
+            Binding, // 实体绑定技能事件.全局重新映射事件和局部的实体重新添加技能组组件都会触发此事件.
+            InputContextAppExt, // 扩展App,注册上下文.
+            RebuildBindings, // 技能重新映射事件,无障碍重新映射/手柄重连都需要此事件.
+        },
+        action_map::{
+            Action, // 技能的底层表示,包含了技能相关的数据.
+            ActionState, // 技能释放状态,这是比较底层的概念,None/Ongoing/Fired,
+                    // 3者之前转换有9种,对应5种ActionEvents,不过都是比较底层的,所以prelude中没有暴露.
+        },
         action_value::{ActionValue, ActionValueDim},
-        actions::{Actions, InputContext},
+        actions::{
+            Actions, // 技能套组件,实体有此组件才能释放技能.上下文有多少技能都是在此组件中配置的.肯定啊,因为组件能存储数据啊.
+            InputContext, // 上下文特型,可以理解为技能套,换一个上下文就能换一套技能. 上下文还可以叠加,如果有冲突就按上下文的优先级来处理.
+        },
         events::*,
-        input::{GamepadDevice, Input, InputModKeys, ModKeys},
-        input_action::{Accumulation, InputAction},
+        input::{
+            GamepadDevice, // 手柄设备,这里是枚举,表明多手柄的处理方式.如果是多人游戏,技能肯定是绑定到单个手柄的;还可以综合多手柄输入.
+            Input,
+            InputModKeys,
+            ModKeys,
+        },
+        input_action::{
+            Accumulation,
+            InputAction, // 业务技能特型.
+        },
         input_binding::{BindingBuilder, InputBinding, IntoBindings},
         input_condition::{
             ConditionKind, InputCondition, block_by::*, chord::*, condition_timer::*, hold::*,
@@ -362,10 +382,13 @@ pub mod prelude {
             InputModifier, accumulate_by::*, clamp::*, dead_zone::*, delta_scale::*,
             exponential_curve::*, negate::*, scale::*, smooth_nudge::*, swizzle_axis::*,
         },
-        input_reader::ActionSources,
+        input_reader::ActionSources, // 输入总开关资源,可以方便enable/disable各类设备输入(键盘/鼠标/手柄).
         preset::*,
     };
-    pub use bevy_enhanced_input_macros::{InputAction, InputContext};
+    pub use bevy_enhanced_input_macros::{
+        InputAction,  // 辅助宏,帮忙定义技能.
+        InputContext, // 辅助宏,帮忙定义技能组(上下文).
+    };
 }
 
 use bevy::{input::InputSystem, prelude::*};
