@@ -55,6 +55,8 @@ use crate::{
 /// #[input_action(output = Vec2)]
 /// struct Move;
 /// ```
+///
+/// 上下左右的简单封装,支持键盘和手柄.
 #[derive(Debug, Clone, Copy)]
 pub struct Cardinal<I: IntoBindings> {
     pub north: I,
@@ -63,6 +65,8 @@ pub struct Cardinal<I: IntoBindings> {
     pub west: I,
 }
 
+/// 这种写法很有意思, struct泛型定义, impl单态化了.
+/// wasd/方向键.
 impl Cardinal<KeyCode> {
     /// Maps WASD keys as 2-dimensional input.
     ///
@@ -91,6 +95,7 @@ impl Cardinal<KeyCode> {
     }
 }
 
+/// dpad键.
 impl Cardinal<GamepadButton> {
     /// Maps D-pad as 2-dimensional input.
     ///
@@ -178,6 +183,7 @@ pub struct Axial<I: IntoBindings> {
     pub y: I,
 }
 
+// 遥感.
 impl Axial<GamepadAxis> {
     /// Maps left stick as 2-dimensional input.
     ///
@@ -217,6 +223,8 @@ impl<I: IntoBindings> IntoBindings for Axial<I> {
 /// Positive binding will be passed as is and negative will be reversed using [`Negate`].
 ///
 /// See also [`Cardinal`].
+///
+/// 双向开关, 将值进行了反向.
 #[derive(Debug, Clone, Copy)]
 pub struct Bidirectional<I: IntoBindings> {
     pub positive: I,

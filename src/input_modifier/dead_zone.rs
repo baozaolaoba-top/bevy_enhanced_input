@@ -10,6 +10,8 @@ use crate::{action_map::ActionMap, action_value::ActionValue};
 /// Apply at the action level to ensure consistent diagonal movement speeds across different input sources.
 ///
 /// [`ActionValue::Bool`] will be transformed into [`ActionValue::Axis1D`].
+///
+/// 死区修改器.带归一化效果.
 #[derive(Clone, Copy, Debug)]
 pub struct DeadZone {
     /// Defines how axes are processed.
@@ -20,6 +22,8 @@ pub struct DeadZone {
     /// Threshold below which input is ignored.
     ///
     /// By default set to 0.2.
+    ///
+    /// 死区下限是0.2,和我之前手动处理手柄是一个逻辑.
     pub lower_threshold: f32,
 
     /// Threshold above which input is clamped to 1.
@@ -103,6 +107,8 @@ impl InputModifier for DeadZone {
 }
 
 /// Dead zone behavior.
+///
+/// 死区行为,是圆形还是方形.
 #[derive(Default, Clone, Copy, Debug)]
 pub enum DeadZoneKind {
     /// Apply dead zone logic to all axes simultaneously.

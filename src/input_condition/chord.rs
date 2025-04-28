@@ -56,6 +56,7 @@ impl<A: InputAction> InputCondition for Chord<A> {
     }
 
     fn kind(&self) -> ConditionKind {
+        // 多个Chord条件能组合在一起,主要是因为下面条件类型的影响,只有都是Fired,最终State才是Fired.
         ConditionKind::Implicit
     }
 }

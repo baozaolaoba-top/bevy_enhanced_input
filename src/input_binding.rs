@@ -251,6 +251,8 @@ variadics_please::all_tuples!(impl_tuple_binds, 1, 15, I);
 /// Bindings with assigned modifiers.
 ///
 /// See also [`IntoBindings::with_modifiers_each`]
+///
+/// 中间类型,将多个修改器应用到多个`输入绑定`.
 pub struct WithModifiersEach<I: IntoBindings, M: IntoModifiers + Clone> {
     bindings: I,
     modifiers: M,
@@ -267,6 +269,8 @@ impl<I: IntoBindings, M: IntoModifiers + Clone> IntoBindings for WithModifiersEa
 /// Bindings with assigned conditions.
 ///
 /// See also [`IntoBindings::with_conditions_each`]
+///
+/// 中间类型,将多个条件应用到多个`输入绑定`.
 pub struct WithConditionsEach<I: IntoBindings, C: IntoConditions + Clone> {
     bindings: I,
     conditions: C,

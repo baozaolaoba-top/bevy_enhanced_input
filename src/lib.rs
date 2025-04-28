@@ -344,9 +344,9 @@ mod trigger_tracker;
 
 pub mod prelude {
     pub use super::{
-        EnhancedInputPlugin,
-        EnhancedInputSystem,
-        action_binding::ActionBinding,
+        EnhancedInputPlugin,           // Bevy插件
+        EnhancedInputSystem,           // system set, 肯定在PreUpdate的InputSystem后面.
+        action_binding::ActionBinding, // 技能绑定, 定一个技能关联的输入/修改器/条件.
         action_instances::{
             Binding, // 实体绑定技能事件.全局重新映射事件和局部的实体重新添加技能组组件都会触发此事件.
             InputContextAppExt, // 扩展App,注册上下文.
@@ -357,33 +357,58 @@ pub mod prelude {
             ActionState, // 技能释放状态,这是比较底层的概念,None/Ongoing/Fired,
                     // 3者之前转换有9种,对应5种ActionEvents,不过都是比较底层的,所以prelude中没有暴露.
         },
-        action_value::{ActionValue, ActionValueDim},
+        action_value::{
+            ActionValue,    // 技能值的底层表示,bool/f32/Vec2/Vec3,这是对设备采集的封装.低级别.
+            ActionValueDim, // 技能值的维度,有了维度表示之后可以方便做转换,不管是修改器还是最终的Output都喜欢这个维度指标.
+        },
         actions::{
             Actions, // 技能套组件,实体有此组件才能释放技能.上下文有多少技能都是在此组件中配置的.肯定啊,因为组件能存储数据啊.
             InputContext, // 上下文特型,可以理解为技能套,换一个上下文就能换一套技能. 上下文还可以叠加,如果有冲突就按上下文的优先级来处理.
         },
-        events::*,
+        events::*, // 3种技能生成的5种事件,业务方需要通过ob监听事件,才能感知技能释放的进度.
         input::{
             GamepadDevice, // 手柄设备,这里是枚举,表明多手柄的处理方式.如果是多人游戏,技能肯定是绑定到单个手柄的;还可以综合多手柄输入.
-            Input,
-            InputModKeys,
-            ModKeys,
+            Input,         // 输入封装,封装了具体的设备输入.
+            InputModKeys,  // 功能键特型,键盘鼠标可以和功能键一起组成更丰富的语义.
+            ModKeys,       // 功能键. ctrl/shift/alt/win.
         },
         input_action::{
-            Accumulation,
-            InputAction, // 业务技能特型.
+            Accumulation, // 技能绑定多个输入的组合计算方式,累加器: 累加还是取最大绝对值.
+            InputAction,  // 业务技能特型.
         },
-        input_binding::{BindingBuilder, InputBinding, IntoBindings},
+        input_binding::{
+            BindingBuilder, // 绑定构建特型,给输入绑定扩展了两个方法来加载条件和修改器.这点上和Action有点区别.
+            InputBinding,   // 输入绑定,设备输入/条件/修改器. 一个技能可关联多个输入.
+            IntoBindings,   // 多输入绑定特型,元组/Vec等多种书写方式都支持了.
+        },
         input_condition::{
-            ConditionKind, InputCondition, block_by::*, chord::*, condition_timer::*, hold::*,
-            hold_and_release::*, just_press::*, press::*, pulse::*, release::*, tap::*,
+            ConditionKind, // 条件类型,参与最终的ActionState计算: 显示(只要一个满足)/隐式(全部满足)/阻塞式(只要有个是None,结果就是None).
+            InputCondition, // 条件特型. 每个条件都需要自定义评估过程.
+            block_by::*,   // 同一个上下文中,一个技能会屏蔽另一个技能.
+            chord::*,      // 同一个上下文中,组合多个技能.条件类型是:隐式.
+            condition_timer::*, // 条件中使用到的定时器,封装了Time<Virtual>,方便进行时间流速控制.
+            hold::*,       // 按下多长时间.
+            hold_and_release::*, // 按下释放,判断按下的时长是否超过某个阈值.
+            just_press::*, // 刚按下.
+            press::*,      // 按下.
+            pulse::*,      // 按下,按脉冲发送Fired.
+            release::*,    // 释放.
+            tap::*,        // 轻按,持续时间不能超过阈值.
         },
         input_modifier::{
-            InputModifier, accumulate_by::*, clamp::*, dead_zone::*, delta_scale::*,
-            exponential_curve::*, negate::*, scale::*, smooth_nudge::*, swizzle_axis::*,
+            InputModifier,        // 修改器特型.
+            accumulate_by::*,     // 累加修改器.
+            clamp::*,             // 指定取值范围.
+            dead_zone::*,         // 死区修改器,带归一化处理.
+            delta_scale::*,       // 和delta相乘.特别适合和时间相关的变量,eg:移动?
+            exponential_curve::*, // 指数修改器.
+            negate::*,            // 反转修改器.
+            scale::*,             // 倍率修改器.
+            smooth_nudge::*,      // 平滑修改器.
+            swizzle_axis::*,      // 轴向修改器.
         },
         input_reader::ActionSources, // 输入总开关资源,可以方便enable/disable各类设备输入(键盘/鼠标/手柄).
-        preset::*,
+        preset::*,                   // 对一些常用的组合进行了暴露.
     };
     pub use bevy_enhanced_input_macros::{
         InputAction,  // 辅助宏,帮忙定义技能.
