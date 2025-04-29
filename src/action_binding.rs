@@ -303,7 +303,9 @@ impl ActionBinding {
         trace!("updating action `{}`", self.action_name);
 
         let mut tracker = TriggerTracker::new(ActionValue::zero(self.dim));
+        // 技能绑定内部先遍历处理输入绑定。
         for binding in &mut self.inputs {
+            // 根据输入绑定的按键，查Bevy的资源：输入表。
             let value = reader.value(binding.input);
             if self.require_reset && binding.first_activation {
                 // Ignore until we read zero for this mapping.
@@ -314,6 +316,7 @@ impl ActionBinding {
                 }
             }
 
+            // 先处理前处理的：修改器和条件.
             let mut current_tracker = TriggerTracker::new(value);
             trace!("reading value `{value:?}`");
             current_tracker.apply_modifiers(action_map, time, &mut binding.modifiers);
@@ -345,6 +348,7 @@ impl ActionBinding {
             }
         }
 
+        // 叠加全局条件和修改器。
         tracker.apply_modifiers(action_map, time, &mut self.modifiers);
         tracker.apply_conditions(action_map, time, &mut self.conditions);
 
@@ -364,6 +368,7 @@ impl ActionBinding {
             self.consume_buffer.clear();
         }
 
+        // 更新技能信息并发送事件。
         action.update(time, state, value);
         if !tracker.events_blocked() {
             action.trigger_events(commands, entity);

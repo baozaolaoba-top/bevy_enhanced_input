@@ -78,7 +78,12 @@ fn binding(
         Player::First => {
             actions
                 .bind::<Move>()
-                .to((Cardinal::wasd_keys(), Axial::left_stick()));
+                .to((Cardinal::wasd_keys(), Axial::left_stick()))
+                .with_modifiers((
+                    DeadZone::default(),
+                    SmoothNudge::default(),
+                    Scale::splat(DEFAULT_SPEED),
+                ));
             actions
                 .bind::<Rotate>()
                 .to((KeyCode::Space, GamepadButton::South));
@@ -95,11 +100,11 @@ fn binding(
 
     // Can be called multiple times extend bindings.
     // In our case we add modifiers for all players.
-    actions.bind::<Move>().with_modifiers((
-        DeadZone::default(),
-        SmoothNudge::default(),
-        Scale::splat(DEFAULT_SPEED),
-    ));
+    // actions.bind::<Move>().with_modifiers((
+    //     DeadZone::default(),
+    //     SmoothNudge::default(),
+    //     Scale::splat(DEFAULT_SPEED),
+    // ));
 }
 
 fn apply_movement(trigger: Trigger<Fired<Move>>, mut players: Query<&mut Transform>) {

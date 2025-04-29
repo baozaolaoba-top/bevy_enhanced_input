@@ -355,7 +355,7 @@ pub mod prelude {
         action_map::{
             Action, // 技能的底层表示,包含了技能相关的数据.
             ActionState, // 技能释放状态,这是比较底层的概念,None/Ongoing/Fired,
-                    // 3者之前转换有9种,对应5种ActionEvents,不过都是比较底层的,所以prelude中没有暴露.
+                    // 3者之间转换有9种,对应5种ActionEvents,不过都是比较底层的,所以prelude中没有暴露.
         },
         action_value::{
             ActionValue,    // 技能值的底层表示,bool/f32/Vec2/Vec3,这是对设备采集的封装.低级别.

@@ -23,6 +23,7 @@ use crate::{
 /// Actions are evaluated and trigger [`events`](crate::events) only when this component exists on an entity.
 ///
 /// Action可以理解为一个输入驱动的动作，技能释放也好，按钮点击也好。
+/// Actions表示技能列表.
 #[derive(Component)]
 pub struct Actions<C: InputContext> {
     gamepad: GamepadDevice,
